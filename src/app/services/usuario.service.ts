@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { RegisterForm } from '../interfaces/register-form.interface';
 import { LoginForm } from '../interfaces/login-form.interface';
 import { Usuario } from '../models/usuario.model';
+import { CargarUsuario } from '../interfaces/cargar-usuarios.interface';
 
 const base_url = environment.base_url;
 
@@ -36,6 +37,14 @@ export class UsuarioService {
     return this.usuario.uid || '';
   }
 
+  get headers() {
+    return {
+      headers: {
+        'x-token': this.token,
+      },
+    };
+  }
+
   googleInit() {
     return new Promise<void>((resolve) => {
       gapi.load('auth2', () => {
@@ -61,30 +70,24 @@ export class UsuarioService {
   }
 
   validarToken(): Observable<boolean> {
-    return this.http
-      .get(`${base_url}/login/renew`, {
-        headers: {
-          'x-token': this.token,
-        },
-      })
-      .pipe(
-        map((resp: any) => {
-          const { email, google, nombre, role, img = '', uid } = resp.usuario;
-          this.usuario = new Usuario(
-            nombre,
-            email,
-            undefined,
-            img,
-            google,
-            role,
-            uid
-          );
+    return this.http.get(`${base_url}/login/renew`, this.headers).pipe(
+      map((resp: any) => {
+        const { email, google, nombre, role, img = '', uid } = resp.usuario;
+        this.usuario = new Usuario(
+          nombre,
+          email,
+          undefined,
+          img,
+          google,
+          role,
+          uid
+        );
 
-          localStorage.setItem('token', resp.token);
-          return true;
-        }),
-        catchError((err) => of(false))
-      );
+        localStorage.setItem('token', resp.token);
+        return true;
+      }),
+      catchError((err) => of(false))
+    );
   }
 
   crearUsuario(formData: RegisterForm) {
@@ -95,18 +98,17 @@ export class UsuarioService {
     );
   }
 
-  actualizarPefil(data: { email: string; nombre: string, role: string }) {
-
+  actualizarPefil(data: { email: string; nombre: string; role: string }) {
     data = {
       ...data,
       role: this.usuario.role!,
-    }
+    };
 
-    return this.http.put(`${base_url}/usuarios/${this.uid}`, data, {
-      headers: {
-        'x-token': this.token,
-      },
-    });
+    return this.http.put(
+      `${base_url}/usuarios/${this.uid}`,
+      data,
+      this.headers
+    );
   }
 
   loginUsuario(formData: LoginForm) {
@@ -122,6 +124,44 @@ export class UsuarioService {
       tap((resp: any) => {
         localStorage.setItem('token', resp.token);
       })
+    );
+  }
+
+  cargarUsuarios(desde: number = 0) {
+    const url = `${base_url}/usuarios?desde=${desde}`;
+    return this.http.get<CargarUsuario>(url, this.headers).pipe(
+      map((resp) => {
+        const usuarios = resp.usuarios.map(
+          (user) =>
+            new Usuario(
+              user.nombre,
+              user.email,
+              undefined,
+              user.img,
+              user.google,
+              user.role,
+              user.uid
+            )
+        );
+
+        return {
+          total: resp.total,
+          usuarios,
+        };
+      })
+    );
+  }
+
+  eliminarUsuario(uid: string) {
+    const url = `${base_url}/usuarios/${uid}`;
+    return this.http.delete(url, this.headers);
+  }
+
+  guardarUsuario(usuario: Usuario) {
+    return this.http.put(
+      `${base_url}/usuarios/${usuario.uid}`,
+      usuario,
+      this.headers
     );
   }
 }

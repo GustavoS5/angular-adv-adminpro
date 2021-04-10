@@ -12,9 +12,9 @@ import Swal from 'sweetalert2';
 })
 export class PerfilComponent implements OnInit {
   perfilForm!: FormGroup;
-  public usuario: Usuario;
-  public imagenSubir!: File;
-  public imgTemp: string | ArrayBuffer | null = '';
+  usuario: Usuario;
+  imagenSubir!: File;
+  imgTemp: string | ArrayBuffer | null = '';
 
   constructor(
     private fb: FormBuilder,
