@@ -11,7 +11,7 @@ import { filter, map } from 'rxjs/operators';
 export class BreadcrumbsComponent implements OnDestroy {
   titulo!: string;
 
-  tituloSubs$!: Subscription;
+  tituloSubs$: Subscription;
 
   constructor(private router: Router) {
     this.tituloSubs$ = this.getDataRuta().subscribe(({ titulo }) => {

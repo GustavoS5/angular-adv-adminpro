@@ -49,7 +49,7 @@
                 <td>Tantas earum numeris</td>
                 <td>Tantas earum numeris</td>
 
-                <td class="text-nowrap">
+                <td class="text-nowrap text-center">
                   <a
                     href="#"
                     data-toggle="tooltip"
