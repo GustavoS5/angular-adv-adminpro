@@ -74,7 +74,7 @@ export class UsuarioService {
 
     this.auth2.signOut().then(() => {
       this.ngZone.run(() => {
-        this.router.navigateByUrl('/auth/login');
+        this.router.navigateByUrl('/login');
       });
     });
   }
