@@ -90,6 +90,7 @@ export class MedicoComponent implements OnInit, OnDestroy {
     this.cargando = true;
 
     if (id === 'nuevo') {
+      this.cargando = false;
       return;
     }
 
